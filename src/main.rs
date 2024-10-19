@@ -7,7 +7,7 @@ use std::thread::sleep;
 use std::time::Duration;
 use game_state::GameState;
 use tabs::Tab;
-use upgrades::Upgrade;
+use upgrades::{Buyable, UpgradeType, CostType};
 use ratatui::{backend::CrosstermBackend, Frame, Terminal};
 use std::io::{self};
 use ui::ui_render;
@@ -57,21 +57,32 @@ fn run_app(
                             return Ok(());
                         }
                         KeyCode::Char('g') => {
-                            state.change_gold(1);
+                            state.change_gold(1.0);
                         },
-                        KeyCode::Char('j') | KeyCode::Down => state.select_next(),
-                        KeyCode::Char('k') | KeyCode::Up => state.select_previous(),
+
+                        KeyCode::Char('-') => {
+                            state.change_gold(1.0e10);
+                        },
+                        KeyCode::Char('m') => state.buy_max(),
+
+                        KeyCode::Down => state.select_next(),
+                        KeyCode::Up => state.select_prev(),
+                        KeyCode::Right => state.next_tab(),
+                        KeyCode::Left => state.prev_tab(),
+                        KeyCode::Enter => state.buy_upgrade(),
                         _ => {}
                     }
                 }
             }
         }
 
+        state.update();
+
         let elapsed = std::time::Instant::now().duration_since(last_gold_update);
         if elapsed >= std::time::Duration::from_secs(1) {
-            let time_multiplier = elapsed.as_secs() as i64;
+            let time_multiplier = elapsed.as_secs() as f64;
 
-            state.change_gold(1 * time_multiplier);
+            state.change_gold(((state.clicker * state.altered_gps) * time_multiplier).round());
             
             last_gold_update = std::time::Instant::now();
         }
