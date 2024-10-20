@@ -76,13 +76,12 @@ fn run_app(
             }
         }
 
-        state.update();
-
         let elapsed = std::time::Instant::now().duration_since(last_gold_update);
         if elapsed >= std::time::Duration::from_secs(1) {
             let time_multiplier = elapsed.as_secs() as f64;
+            let clickers_self_multiplier = state.upgrades.iter_mut().find(|x| x.tab == 001 && x.id == 2).unwrap().owned; 
 
-            state.change_gold(((state.clicker * state.altered_gps) * time_multiplier).round());
+            state.change_gold(((state.clicker * (state.gpc + (state.clicker * clickers_self_multiplier * 0.3))) * time_multiplier));
             
             last_gold_update = std::time::Instant::now();
         }

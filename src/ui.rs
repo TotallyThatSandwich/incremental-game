@@ -22,9 +22,12 @@ use ratatui::{
 //const COMPLETED_TEXT_FG_COLOR: Color = GREEN.c500;
 
 pub fn ui_render(f: &mut Frame, state: &mut GameState) {
+    
     use Constraint::{Fill, Length, Min};
     
     let mut left_lines = vec![];
+
+    let gpc_equasion = (state.gpc + (state.clicker * state.upgrades.iter_mut().find(|x| x.tab == 001 && x.id == 2).unwrap().owned  * 0.3)) * state.clicker;
 
     let size = f.size();
 
@@ -34,7 +37,8 @@ pub fn ui_render(f: &mut Frame, state: &mut GameState) {
     let horizontal = Layout::horizontal([Fill(1), Fill(2)]);
     let [left_area, right_area] = horizontal.areas(main_area);
 
-    let title_block = Block::bordered().title("Gold Clicker");
+    //let title_block = Block::bordered().title(format!("{} * ( {} + ( {} * {} * 0.3 )) = {}", &state.clicker, &state.gpc, &state.clicker, &state.upgrades.iter().find(|&x| x.tab == 001 && x.id == 2).unwrap().owned, gpc_equasion));
+    let title_block = Block::bordered().title("Clicker Game");
     let left_block = Block::bordered().title("Statistics");
     let right_block = Block::bordered();
 
@@ -53,9 +57,9 @@ pub fn ui_render(f: &mut Frame, state: &mut GameState) {
                                 } else {
                                     tab_upgrade_list.push(format!("{}", 
                                         if i.cost> 999_999_999.0 {
-                                            format!("{} ({:.2e} Gold) [{}/{} Owned]", i.name, i.cost, i.owned, i.max)
+                                            format!("{} ({:.2e} Gold) [{}/{} Owned]", i.name, i.cost.round(), i.owned, i.max)
                                         } else {
-                                            format!("{} ({} Gold) [{}/{} Owned]", i.name, i.cost, i.owned, i.max)
+                                            format!("{} ({} Gold) [{}/{} Owned]", i.name, i.cost.round(), i.owned, i.max)
                                         })
                                     );
                                 }
@@ -63,17 +67,17 @@ pub fn ui_render(f: &mut Frame, state: &mut GameState) {
                                 if i.owned > 0.0 {
                                     tab_upgrade_list.push(format!("{}", 
                                         if i.cost> 999_999_999.0 {
-                                            format!("{} ({:.2e} Gold) [{} Owned]", i.name, i.cost, i.owned)
+                                            format!("{} ({:.2e} Gold) [{} Owned]", i.name, i.cost.round(), i.owned)
                                         } else {
-                                            format!("{} ({} Gold) [{} Owned]", i.name, i.cost, i.owned)
+                                            format!("{} ({} Gold) [{} Owned]", i.name, i.cost.round(), i.owned)
                                         })
                                     );
                                 } else {
                                     tab_upgrade_list.push(format!("{}", 
                                         if i.cost> 999_999_999.0 {
-                                            format!("{} ({:.2e} Gold)", i.name, i.cost)
+                                            format!("{} ({:.2e} Gold)", i.name, i.cost.round())
                                         } else {
-                                            format!("{} ({} Gold)", i.name, i.cost)
+                                            format!("{} ({} Gold)", i.name, i.cost.round())
                                         })
                                     );
                                 }
@@ -95,9 +99,9 @@ pub fn ui_render(f: &mut Frame, state: &mut GameState) {
 
     left_lines.push(Line::from(Span::raw(format!("Gold: {}", 
         if state.gold > 999_999_999.0 {
-            format!("{:.2e}", state.gold)
+            format!("{:.2e}", state.gold.round())
         } else {
-            format!("{}", state.gold)
+            format!("{}", state.gold.round())
         })))
     );
 
@@ -116,10 +120,10 @@ pub fn ui_render(f: &mut Frame, state: &mut GameState) {
 
 
     let status_block = Block::bordered().title(format!("GPS: {} | [↑↓] select upgrade | [ENTER] Buy Selected Upgrade | [M] Buy Max", 
-        if state.altered_gps * state.clicker > 999_999_999.0 {
-            format!("{:.2e}", (state.altered_gps * state.clicker).round())
+        if gpc_equasion > 999_999_999.0 {
+            format!("{:.2e}", gpc_equasion.round())
         } else {
-            format!("{}", (state.altered_gps * state.clicker).round())
+            format!("{}", gpc_equasion.round())
         }
     ));
 

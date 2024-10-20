@@ -36,7 +36,7 @@ impl Buyable {
     }
 
     pub fn buy(&mut self) {
-        self.cost = (self.cost * self.cost_multiplier).round();
+        self.cost = (self.cost * self.cost_multiplier);
         self.owned += 1.0;
     }
 }
