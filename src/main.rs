@@ -36,7 +36,7 @@ fn run_app(
     state: &mut GameState,
 ) -> io::Result<()> {
     
-    let mut last_gold_update = std::time::Instant::now();
+    let mut last_bytes_update = std::time::Instant::now();
     
     loop {
         // Draw the ui
@@ -57,11 +57,11 @@ fn run_app(
                             return Ok(());
                         }
                         KeyCode::Char('g') => {
-                            state.change_gold(1.0);
+                            state.change_bytes(1.0);
                         },
 
                         KeyCode::Char('-') => {
-                            state.change_gold(1.0e10);
+                            state.change_bytes(1.0e10);
                         },
                         KeyCode::Char('m') => state.buy_max(),
 
@@ -76,14 +76,14 @@ fn run_app(
             }
         }
 
-        let elapsed = std::time::Instant::now().duration_since(last_gold_update);
+        let elapsed = std::time::Instant::now().duration_since(last_bytes_update);
         if elapsed >= std::time::Duration::from_secs(1) {
             let time_multiplier = elapsed.as_secs() as f64;
             let clickers_self_multiplier = state.upgrades.iter_mut().find(|x| x.tab == 001 && x.id == 2).unwrap().owned; 
 
-            state.change_gold(((state.clicker * (state.gpc + (state.clicker * clickers_self_multiplier * 0.3))) * time_multiplier));
+            state.change_bytes(((state.clicker * (state.bpc + (state.clicker * clickers_self_multiplier * 0.3))) * time_multiplier));
             
-            last_gold_update = std::time::Instant::now();
+            last_bytes_update = std::time::Instant::now();
         }
     }
 }

@@ -1,11 +1,12 @@
 pub enum UpgradeType {
-    GoldClicker,
-    GoldMultiplier,
-    ClickersMultiplyGold,
+    BytesClicker,
+    BytesMultiplier,
+    ClickersMultiplyBytes,
+    UnlockCore,
 }
 
 pub enum CostType {
-    Gold,
+    Bytes,
 }
 
 pub struct Buyable {
