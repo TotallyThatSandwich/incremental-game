@@ -3,10 +3,12 @@ pub enum UpgradeType {
     BytesMultiplier,
     ClickersMultiplyBytes,
     UnlockCore,
+    CoreClicker,
 }
 
 pub enum CostType {
     Bytes,
+    Cores,
 }
 
 pub struct Buyable {
@@ -34,10 +36,22 @@ impl Buyable {
             cost_multiplier,
             buyable_type,
         }
+        
+
     }
 
     pub fn buy(&mut self) {
-        self.cost = (self.cost * self.cost_multiplier);
+        self.cost = self.cost * self.cost_multiplier;
         self.owned += 1.0;
+    }
+
+    pub fn is_max(&mut self) -> bool {
+        if self.owned == self.max && self.max != 0.0{
+            return true;
+        } else {
+            return false;
+        }
+
+
     }
 }

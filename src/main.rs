@@ -3,7 +3,7 @@ use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use std::thread::sleep;
+//use std::thread::sleep;
 use std::time::Duration;
 use game_state::GameState;
 use tabs::Tab;
@@ -60,16 +60,38 @@ fn run_app(
                             state.change_bytes(1.0);
                         },
 
-                        KeyCode::Char('-') => {
-                            state.change_bytes(1.0e10);
-                        },
-                        KeyCode::Char('m') => state.buy_max(),
+                        KeyCode::Char('-') => {state.change_bytes(1.0e10);},
+                        KeyCode::Char('m') => { 
+                            if state.buy_max().is_ok() {
+                                let upgrade = state.upgrades.iter_mut().find(|x| x.id == state.cursor.selected().unwrap() as u16 && x.tab == state.active_tab).unwrap();
+
+                                match upgrade.buyable_type {
+                                    UpgradeType::BytesClicker => {},
+                                    UpgradeType::BytesMultiplier => {},
+                                    UpgradeType::ClickersMultiplyBytes => { if upgrade.is_max() && state.upgrades.iter().find(|&x| x.id == 3 && x.tab == 001).is_none() { state.new_upgrade(3, "Unlock Cores: Cores Are A Secondary Currancy, Cores Boost Your Byte Production", 001, 1_000_000.0, 1.15, 1.0, CostType::Bytes, UpgradeType::UnlockCore); }},
+                                    UpgradeType::UnlockCore=> { if upgrade.is_max() && state.unlock_tabs == 001 {state.new_tab("Cores Shop"); state.cps = 5.0}},
+                                    UpgradeType::CoreClicker => {}
+                                };
+                            }
+                        }
 
                         KeyCode::Down => state.select_next(),
                         KeyCode::Up => state.select_prev(),
                         KeyCode::Right => state.next_tab(),
                         KeyCode::Left => state.prev_tab(),
-                        KeyCode::Enter => state.buy_upgrade(),
+                        KeyCode::Enter => { 
+                            if state.buy_upgrade().is_ok() {
+                                let upgrade = state.upgrades.iter_mut().find(|x| x.id == state.cursor.selected().unwrap() as u16 && x.tab == state.active_tab).unwrap();
+
+                                match upgrade.buyable_type {
+                                    UpgradeType::BytesClicker => {},
+                                    UpgradeType::BytesMultiplier => {},
+                                    UpgradeType::ClickersMultiplyBytes => { if upgrade.is_max() && state.upgrades.iter().find(|&x| x.id == 3 && x.tab == 001).is_none() { state.new_upgrade(3, "Unlock Cores: Cores Are A Secondary Currancy, Cores Boost Your Byte Production", 001, 1_000_000.0, 1.15, 1.0, CostType::Bytes, UpgradeType::UnlockCore); }},
+                                    UpgradeType::UnlockCore=> { if upgrade.is_max() && state.unlock_tabs == 001 {state.new_tab("Cores Shop"); state.cps = 5.0}},
+                                    UpgradeType::CoreClicker => {}
+                                };
+                            }
+                        }
                         _ => {}
                     }
                 }
@@ -81,8 +103,10 @@ fn run_app(
             let time_multiplier = elapsed.as_secs() as f64;
             let clickers_self_multiplier = state.upgrades.iter_mut().find(|x| x.tab == 001 && x.id == 2).unwrap().owned; 
 
-            state.change_bytes(((state.clicker * (state.bpc + (state.clicker * clickers_self_multiplier * 0.3))) * time_multiplier));
+            state.change_bytes((state.clicker * (state.bpc + (state.clicker * clickers_self_multiplier * 0.3))) * time_multiplier * (1.0 + (0.5 * state.cores)));
             
+            state.change_cores(state.microprocessors * state.cps);
+
             last_bytes_update = std::time::Instant::now();
         }
     }
